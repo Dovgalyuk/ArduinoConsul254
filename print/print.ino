@@ -10,7 +10,7 @@
 #define COL_SHIFT 3
 
 uint8_t out_table[256];
-uint8_t reg = H_BIT;
+uint8_t reg;
 
 void fill_tables()
 {
@@ -177,6 +177,16 @@ void sendCode(uint8_t r, uint8_t c)
   sendCodeDelay(r, c, 10);
 }
 
+void lowReg()
+{
+    sendCode(2, 3);
+}
+
+void highReg()
+{
+    sendCode(2, 1);
+}
+
 void sendSymbol(char c)
 {
     if (c == '\n') {
@@ -190,9 +200,9 @@ void sendSymbol(char c)
         if (!(code & reg)) {
             reg = SWITCH_REG(reg);
             if (reg == H_BIT) {
-                sendCode(2, 1);
+                highReg();
             } else {
-                sendCode(2, 3);
+                lowReg();
             }
         }
         sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
@@ -249,7 +259,30 @@ void setup() {
   // PORTC = 0xff;
 
     fill_tables();
-    print("HELLO, WORLD!\n");
+    reg = H_BIT;
+    highReg();
+    //print("HELLO, WORLD!\nAND HELLO AGAIN\n");
+
+    print(
+"           ____                              ____\n"
+"         o8%8888,                          o8%8888,\n"
+"       o88%8888888.                      o88%8888888.\n"
+"      8'-    -:8888b                    8'-    -:8888b\n"
+"     8'         8888                   8'         8888\n"
+"    d8.-=. ,==-.:888b                 d8.-=. ,==-.:888b\n"
+"    >8 `~` :`~' d8888                 >8 `=` :`=' d8888\n"
+"    88         ,88888                 88         ,88888\n"
+"    88b. `-~  ':88888                 88b` `--  ':88888\n"
+"    888b ~==~ .:88888                 888b -==- .:88888\n"
+"    88888o--:':::8888                 88888o--:':::8888\n"
+"    `88888| :::' 8888b                `88888| :::' 8888b\n"
+"    8888^^'       8888b               8888^^'       8888b\n"
+"   d888           ,%888b.            d888           ,%888b.\n"
+"  d88%            %%%8--'-.         d88%            %%%8--'-.\n"
+" /88:.__ ,       _%-' ---  -       /88:.__ ,       _%-' ---  -\n"
+"     '''::===..-'   =  --.  `          '''::===..-'   =  --.  `\n"
+"      Normal Mona                      Depressed Mona\n"
+    );
 }
 
 void loop() {
