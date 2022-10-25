@@ -1,0 +1,198 @@
+ROM:D000 ; Segment type: Pure code
+ROM:D000                 segment ROM
+ROM:D000                 org 0D000h
+ROM:D000
+ROM:D000 ; =============== S U B R O U T I N E =======================================
+ROM:D000
+ROM:D000
+ROM:D000 sub_D000:
+ROM:D000                 call    sub_D055
+ROM:D003                 ld      hl, 0C800h
+ROM:D006                 ret
+ROM:D006 ; End of function sub_D000
+ROM:D006
+ROM:D007
+ROM:D007 ; =============== S U B R O U T I N E =======================================
+ROM:D007
+ROM:D007
+ROM:D007 print_symbol:
+ROM:D007                 push    af
+ROM:D008                 call    0C037h
+ROM:D00B                 ld      a, (0FE82h)
+ROM:D00E                 and     8
+ROM:D010                 jp      nz, locret
+ROM:D013                 push    bc
+ROM:D014                 ld      a, c
+ROM:D015                 cp      8               ; BS
+ROM:D017                 jp      z, sym_backspace
+ROM:D01A                 cp      7Fh             ; DEL
+ROM:D01C                 jp      z, sym_backspace
+ROM:D01F                 push    hl
+ROM:D020                 push    de
+ROM:D021                 ld      a, c
+ROM:D022                 cp      0Ah             ; LF
+ROM:D024                 jp      z, sym_newline
+ROM:D027                 cp      1Ah             ; SUB
+ROM:D029                 jp      z, sym_newline
+ROM:D02C                 cp      0Dh             ; CR
+ROM:D02E                 jp      nz, loc_D049
+ROM:D031
+ROM:D031 sym_newline:                            ; CODE XREF: print_symbol+1D↑j
+ROM:D031                                         ; print_symbol+22↑j
+ROM:D031                 ld      a, (8F5Fh)
+ROM:D034                 cp      c
+ROM:D035                 jp      z, loc_D047
+ROM:D038                 cp      0Ah
+ROM:D03A                 jp      z, loc_D04C
+ROM:D03D                 cp      1Ah
+ROM:D03F                 jp      z, loc_D04C
+ROM:D042                 cp      0Dh
+ROM:D044                 jp      z, loc_D04C
+ROM:D047
+ROM:D047 loc_D047:                               ; CODE XREF: print_symbol+2E↑j
+ROM:D047                 ld      c, 0Dh
+ROM:D049
+ROM:D049 loc_D049:                               ; CODE XREF: print_symbol+27↑j
+ROM:D049                 call    decode_and_print
+ROM:D04C
+ROM:D04C loc_D04C:                               ; CODE XREF: print_symbol+33↑j
+ROM:D04C                                         ; print_symbol+38↑j ...
+ROM:D04C                 pop     de
+ROM:D04D                 pop     hl
+ROM:D04E
+ROM:D04E sym_backspace:                          ; CODE XREF: print_symbol+10↑j
+ROM:D04E                                         ; print_symbol+15↑j
+ROM:D04E                 pop     bc
+ROM:D04F                 ld      a, c
+ROM:D050                 ld      (8F5Fh), a
+ROM:D053
+ROM:D053 locret:                                 ; CODE XREF: print_symbol+9↑j
+ROM:D053                 pop     af
+ROM:D054                 ret
+ROM:D054 ; End of function print_symbol
+ROM:D054
+ROM:D055
+ROM:D055 ; =============== S U B R O U T I N E =======================================
+ROM:D055
+ROM:D055
+ROM:D055 sub_D055:                               ; CODE XREF: sub_D000↑p
+ROM:D055                 ld      a, 83h
+ROM:D057                 ld      (0FE83h), a
+ROM:D05A                 ld      a, 0FFh
+ROM:D05C                 ld      (0FE82h), a
+ROM:D05F                 ret
+ROM:D05F ; End of function sub_D055
+ROM:D05F
+ROM:D060
+ROM:D060 ; =============== S U B R O U T I N E =======================================
+ROM:D060
+ROM:D060
+ROM:D060 decode_and_print:                       ; CODE XREF: print_symbol:loc_D049↑p
+ROM:D060                 ld      a, c
+ROM:D061                 and     7Fh
+ROM:D063                 ld      c, a
+ROM:D064                 cp      0Dh             ; CR
+ROM:D066                 jp      z, print_newline
+ROM:D069                 cp      20h ; ' '
+ROM:D06B                 jp      z, print_space
+ROM:D06E                 cp      11h             ; black color
+ROM:D070                 jp      z, print_space
+ROM:D073                 cp      12h             ; red color
+ROM:D075                 jp      z, print_space
+ROM:D078                 and     60h ; '`'
+ROM:D07A                 ret     z               ; skip control characters
+ROM:D07B                 cp      60h ; '`'
+ROM:D07D                 jp      z, loc_D0A0
+ROM:D080                 cp      40h ; '@'
+ROM:D082                 jp      z, loc_D096
+ROM:D085                 ld      a, c
+ROM:D086                 and     10h
+ROM:D088                 ld      a, c
+ROM:D089                 jp      nz, loc_D09B
+ROM:D08C                 cp      2Ch ; ','
+ROM:D08E                 jp      c, loc_D096
+ROM:D091                 cp      2Fh ; '/'
+ROM:D093                 jp      c, loc_D0A0
+ROM:D096
+ROM:D096 loc_D096:                               ; CODE XREF: decode_and_print+22↑j
+ROM:D096                                         ; decode_and_print+2E↑j ...
+ROM:D096                 ld      b, 2
+ROM:D098                 jp      select_shift
+ROM:D09B ; ---------------------------------------------------------------------------
+ROM:D09B
+ROM:D09B loc_D09B:                               ; CODE XREF: decode_and_print+29↑j
+ROM:D09B                 cp      3Ch ; '<'
+ROM:D09D                 jp      nc, loc_D096
+ROM:D0A0
+ROM:D0A0 loc_D0A0:                               ; CODE XREF: decode_and_print+1D↑j
+ROM:D0A0                                         ; decode_and_print+33↑j
+ROM:D0A0                 ld      b, 0
+ROM:D0A2
+ROM:D0A2 select_shift:                           ; CODE XREF: decode_and_print+38↑j
+ROM:D0A2                 ld      a, (0FE82h)
+ROM:D0A5                 and     2
+ROM:D0A7                 cp      b
+ROM:D0A8                 jp      z, print_space
+ROM:D0AB                 or      a
+ROM:D0AC                 ld      a, 0Fh
+ROM:D0AE                 jp      nz, loc_D0B2
+ROM:D0B1                 dec     a
+ROM:D0B2
+ROM:D0B2 loc_D0B2:                               ; CODE XREF: decode_and_print+4E↑j
+ROM:D0B2                 call    send_data
+ROM:D0B5
+ROM:D0B5 print_space:                            ; CODE XREF: decode_and_print+B↑j
+ROM:D0B5                                         ; decode_and_print+10↑j ...
+ROM:D0B5                 push    de
+ROM:D0B6                 ld      de, 15FFh
+ROM:D0B9
+ROM:D0B9 delay:                                  ; CODE XREF: decode_and_print+5C↓j
+ROM:D0B9                                         ; decode_and_print+7C↓j
+ROM:D0B9                 dec     de
+ROM:D0BA                 ld      a, d
+ROM:D0BB                 or      a
+ROM:D0BC                 jp      nz, delay
+ROM:D0BF                 pop     de
+ROM:D0C0
+ROM:D0C0 wait_ready:                             ; CODE XREF: decode_and_print+64↓j
+ROM:D0C0                 ld      a, (0FE82h)
+ROM:D0C3                 rra
+ROM:D0C4                 jp      nc, wait_ready
+ROM:D0C7                 ld      a, c
+ROM:D0C8                 call    send_data
+ROM:D0CB
+ROM:D0CB wait_ready2:                            ; CODE XREF: decode_and_print+6F↓j
+ROM:D0CB                 ld      a, (0FE82h)
+ROM:D0CE                 rra
+ROM:D0CF                 jp      nc, wait_ready2
+ROM:D0D2                 ret
+ROM:D0D3 ; ---------------------------------------------------------------------------
+ROM:D0D3
+ROM:D0D3 print_newline:                          ; CODE XREF: decode_and_print+6↑j
+ROM:D0D3                 call    send_data
+ROM:D0D6                 ld      c, 20h ; ' '
+ROM:D0D8                 push    de
+ROM:D0D9                 ld      de, 0CFFFh
+ROM:D0DC                 jp      delay
+ROM:D0DC ; End of function decode_and_print
+ROM:D0DC
+ROM:D0DF
+ROM:D0DF ; =============== S U B R O U T I N E =======================================
+ROM:D0DF
+ROM:D0DF
+ROM:D0DF send_data:                              ; CODE XREF: decode_and_print:loc_D0B2↑p
+ROM:D0DF                                         ; decode_and_print+68↑p ...
+ROM:D0DF                 ld      (0FE80h), a
+ROM:D0E2                 xor     a
+ROM:D0E3                 ld      (0FE82h), a
+ROM:D0E6                 ld      a, 0FFh
+ROM:D0E8                 ld      (0FE82h), a
+ROM:D0EB                 xor     a
+ROM:D0EC                 ld      (0FE80h), a
+ROM:D0EF                 ret
+ROM:D0EF ; End of function send_data
+ROM:D0EF
+ROM:D0EF ; end of 'ROM'
+ROM:D0EF
+ROM:D0EF
+ROM:D0EF                 end

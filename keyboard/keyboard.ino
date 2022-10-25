@@ -5,7 +5,7 @@ LiquidCrystal_PCF8574 lcd(0x27);  // set the LCD address to 0x27
 char table[256];
 
 void fill_table()
-{  
+{
   // некоторые символы не существуют в ASCII, некоторых не разобрать на скане
   table[B11111000] = '-'; //
   table[B11111011] = 'A'; //

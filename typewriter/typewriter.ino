@@ -3,17 +3,122 @@
 
 #define PRINTING_PIN 38
 
+#define HIGHREG B11010110
+#define LOWREG  B10010111
+
 #define H_BIT 0x80
 #define L_BIT 0x40
-#define SWITCH_REG(r) ((r) ^ (H_BIT | L_BIT))
 #define ROW_SHIFT 0
 #define COL_SHIFT 3
 
+char in_table[256];
 uint8_t out_table[256];
-uint8_t reg = H_BIT;
+bool reg = true;
 
 void fill_tables()
 {
+  // некоторые символы не существуют в ASCII, некоторых не разобрать на скане
+  in_table[B11111000] = '-'; //
+  in_table[B11111011] = 'A'; //
+  in_table[B01111001] = '%'; //
+  in_table[B01111010] = 'Б'; //
+  in_table[B00010000] = '/'; // знак деления
+  in_table[B00010011] = 'Ч'; //
+  in_table[B11011001] = 'D'; //
+  in_table[B11011010] = 'Д'; //
+  in_table[B01011000] = ':'; //
+  in_table[B01011011] = 'E'; //
+  in_table[B11010000] = 'F'; //
+  in_table[B11010011] = 'Ф'; //
+  in_table[B00111000] = 'G'; //
+  in_table[B00111011] = 'Г'; //
+  in_table[B11000001] = '#'; // >=
+  in_table[B11000010] = 'Э'; //
+  in_table[B11101001] = 'I'; //
+  in_table[B11101010] = 'И'; //
+  in_table[B01101000] = 'J'; //
+  in_table[B01101011] = 'Й'; //
+  in_table[B10101000] = '#'; // <=
+  in_table[B10101011] = 'K'; //
+  in_table[B00101001] = 'L'; //
+  in_table[B00101010] = 'Л'; //
+  in_table[B11001000] = '#'; // знак тождественности
+  in_table[B11001011] = 'M'; //
+  in_table[B01001001] = 'N'; //
+  in_table[B01001010] = 'H'; //
+  in_table[B10001001] = '#'; // знак отрицания
+  in_table[B10001010] = 'O'; //
+  in_table[B00001000] = '#'; // знак надмножества
+  in_table[B00001011] = 'П'; //
+  in_table[B10000000] = 'Q'; //
+  in_table[B10000011] = 'Я'; //
+  in_table[B11110001] = 'R'; //
+  in_table[B11110010] = 'Г'; //
+  in_table[B01110000] = 'S'; //
+  in_table[B01110011] = 'C'; //
+  in_table[B10110000] = 'V'; //
+  in_table[B10110011] = 'T'; //
+  in_table[B00110001] = 'U'; //
+  in_table[B00110010] = 'У'; //
+  in_table[B10011000] = 'Y'; // ???
+  in_table[B10011011] = 'Ж'; //
+  in_table[B10111001] = 'W'; //
+  in_table[B10111010] = 'B'; //
+  in_table[B01010001] = '<'; //
+  in_table[B01010010] = 'X'; //
+  in_table[B10100001] = '!'; //
+  in_table[B10100010] = 'Ы'; //
+  in_table[B00011001] = 'Z'; //
+  in_table[B00011010] = 'З'; //
+  in_table[B10010001] = '#'; // знак неравенства
+  in_table[B10010010] = 'Ц'; //
+  in_table[B01000000] = '#'; // ромбик
+  in_table[B01000011] = 'Ю'; //
+  in_table[B11100000] = '#'; // открывающая кавычка
+  in_table[B11100011] = 'Ш'; //
+  in_table[B01100001] = '#'; // закрывающая кавычка
+  in_table[B01100010] = 'Щ'; //
+  in_table[B01111100] = ','; //
+  in_table[B01111111] = '1'; //
+  in_table[B10111100] = '.'; //
+  in_table[B10111111] = '2'; //
+  in_table[B00111101] = '#'; // символ "10"
+  in_table[B00111110] = '3'; //
+  in_table[B11011100] = '+'; //
+  in_table[B11011111] = '4'; //
+  in_table[B01011101] = '('; //
+  in_table[B01011110] = '5'; //
+  in_table[B10011101] = ')'; //
+  in_table[B10011110] = '6'; //
+  in_table[B00011100] = 'x'; //
+  in_table[B00011111] = '7'; //
+  in_table[B11101100] = ';'; //
+  in_table[B11101111] = '8'; //
+  in_table[B01101101] = '['; //
+  in_table[B01101110] = '9'; //
+  in_table[B11111101] = ']'; //
+  in_table[B11111110] = '0'; //
+  in_table[B01100100] = '|'; //
+  in_table[B01100111] = '*'; //
+  in_table[B00101100] = '='; //
+  in_table[B00101111] = '-'; // какой-то минус
+  in_table[B11001101] = '>'; //
+  in_table[B11001110] = '/'; //
+  in_table[B11100110] = '-'; // какой-то минус
+  in_table[B11100101] = '-'; // какой-то минус
+  in_table[B10101101] = '_'; //
+  in_table[B10101110] = '+'; //
+  in_table[B00100000] = '^'; //
+  in_table[B00100011] = 'Ь'; //
+  in_table[B01010111] = '$'; // табулятор
+  in_table[B11110111] = '$'; // возврат каретки
+  //in_table[B11010110] = '$'; // верхний регистр
+  //in_table[B10010111] = '$'; // нижний регистр
+  in_table[B00010110] = ' '; // пробел
+  in_table[B01110110] = '\n'; // перевод строки
+  in_table[B10110110] = '$'; // красная лента
+  in_table[B00110111] = '$'; // черная лента
+
 #define HH H_BIT |
 #define LL L_BIT |
 #define A (0 << ROW_SHIFT) |
@@ -169,7 +274,7 @@ void sendCodeDelay(uint8_t r, uint8_t c, int d)
   //while (!digitalRead(PRINTING_PIN));
   PORTA = 0xff;
   PORTC = 0xff;
-  delay(100);
+  delay(200);
 }
 
 void sendCode(uint8_t r, uint8_t c)
@@ -177,34 +282,16 @@ void sendCode(uint8_t r, uint8_t c)
   sendCodeDelay(r, c, 10);
 }
 
-void sendSymbol(char c)
+void changeRegister(bool r)
 {
-    if (c == '\n') {
-        // CR LF
-        sendCodeDelay(2, 7, 30);
-        delay(400);
-    } else if (!out_table[c]) {
-        sendSymbol(' ');
+    reg = r;
+    if (r) {
+        sendCode(2, 1);
     } else {
-        uint8_t code = out_table[c];
-        if (!(code & reg)) {
-            reg = SWITCH_REG(reg);
-            if (reg == H_BIT) {
-                sendCode(2, 1);
-            } else {
-                sendCode(2, 3);
-            }
-        }
-        sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
+        sendCode(2, 3);
     }
 }
 
-void print(const char *s)
-{
-    while (*s) {
-        sendSymbol(*s++);
-    }
-}
 
 void setup() {
   // for (int i = 22 ; i <= 37 ; ++i)
@@ -215,43 +302,25 @@ void setup() {
   PORTC = 0xff;
   pinMode(PRINTING_PIN, INPUT_PULLUP);
 
-//   sendCode(2, 1); // high reg
-//   sendCode(5, 5); // H
-//   sendCode(1, 5); // E
-//   sendCode(2, 3); // low reg
-//   sendCode(5, 6); // L
-//   sendCode(5, 6); // L
-//   sendCode(2, 1); // high reg
-//   sendCode(5, 3); // O
-//   sendCode(2, 3); // low reg
-//   sendCode(0, 4); // ,
-//   sendCode(2, 0); // space
-//   sendCode(1, 2); // W
-//   sendCode(2, 1); // high reg
-//   sendCode(5, 3); // O
-//   sendCode(2, 3); // low reg
-//   sendCode(3, 7); // R
-//   sendCode(5, 6); // L
-//   sendCode(1, 1); // D
-//   sendCode(7, 2); // !
-//   sendCodeDelay(2, 7, 30); // CR
-
-
-  //for (int i = 0 ; i < 20 ; ++i)
-  //sendCodeDelay(2, 7, 10 + i * 100); // CR
-  // for (int i = 0 ; i < 20 ; ++i)
-  // sendCode(2, 0); // space
-  // CP is carriage feed
-  // PORTA = B01111111;
-  // PORTC = B11111011;
-  // delay(7);
-  // PORTA = 0xff;
-  // PORTC = 0xff;
-
-    fill_tables();
-    print("HELLO, WORLD!\n");
+  changeRegister(true);
 }
 
-void loop() {
 
+void loop() {
+    if (!digitalRead(12)) {
+      unsigned int v = 0;
+      for (int i = 2 ; i <= 9 ; ++i)
+        v = (v << 1) + digitalRead(i);
+      if (v == LOWREG) {
+        changeRegister(false);
+      } else if (v == HIGHREG) {
+        changeRegister(true);
+      } else {
+        if (reg) {
+          v = v ^ 3;
+        }
+        lcd.write(table[v]);
+      }
+      delay(50);
+    }
 }
