@@ -165,13 +165,12 @@ void sendCodeDelay(uint8_t r, uint8_t c, int d)
 {
   // DJ is some symbol
   PORTA = 0xff ^ (1 << c);
-  //if (r == 0) PORTC = 0xff ^ 2; else
   PORTC = 0xff ^ (1 << r);
   delay(d);
   //while (!digitalRead(PRINTING_PIN));
   PORTA = 0xff;
   PORTC = 0xff;
-  delay(100);
+  delay(150);
 }
 
 void sendSymbolCode(uint8_t r, uint8_t c)
@@ -179,20 +178,16 @@ void sendSymbolCode(uint8_t r, uint8_t c)
   // DJ is some symbol
   PORTA = 0xff ^ (1 << c);
   PORTC = 0xff ^ (1 << r);
-  //delay(1);
-  //while (true) {
-  while (digitalRead(PRINTING_PIN));// delay(1);
-  //delay(5);
-  PORTA = 0xff;
+  while (digitalRead(PRINTING_PIN));
   PORTC = 0xff;
-  //while (!digitalRead(PRINTING_PIN));
-  //delay(50);
-  delay(100);
+  PORTA = 0xff;
+  delay(150);
 }
+
 
 void sendCode(uint8_t r, uint8_t c)
 {
-  sendCodeDelay(r, c, 10);
+  sendCodeDelay(r, c, 8);
 }
 
 void lowReg()
@@ -209,7 +204,7 @@ void sendSymbol(char c)
 {
     if (c == '\n') {
         // CR LF
-        sendCodeDelay(2, 7, 30);
+        sendCode(2, 7);
         while (!digitalRead(CR_PIN));
         delay(100);
     } else if (!out_table[c]) {
@@ -224,7 +219,7 @@ void sendSymbol(char c)
                 lowReg();
             }
         }
-        if (c == ' '/* || (c >= '0' && c <= '9')*/)
+        if (c == ' ')
           sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
         else
           sendSymbolCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
@@ -285,6 +280,8 @@ void setup() {
     reg = H_BIT;
     highReg();
 
+    print("A   B7777777777777777777777777777777\n");
+    return;
 
 //    print("0123456789\n");
     //print("HELLO, WORLD!\nAND HELLO AGAIN\n");
