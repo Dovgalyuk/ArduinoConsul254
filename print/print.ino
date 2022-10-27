@@ -2,6 +2,7 @@
 // PC - выбор ряда A..H
 
 #define PRINTING_PIN 38
+#define CR_PIN 39
 
 #define H_BIT 0x80
 #define L_BIT 0x40
@@ -42,7 +43,7 @@ void fill_tables()
     out_table['\''] = LL H M;
     out_table['('] = LL A N;
     out_table[')'] = LL A L;
-    out_table['*'] = HH G M;
+    // out_table['*'] = HH G M; // ?????
     out_table['+'] = HH E K;
     out_table[','] = LL A M;
     out_table['-'] = LL B P;
@@ -98,7 +99,7 @@ void fill_tables()
     out_table['_'] = LL E K;
     out_table['`'] = LL H P;
     //out_table['{'] = ;
-    out_table['|'] = LL G M;
+    //out_table['|'] = LL G M; // ?????
     //out_table['}'] = ;
     //out_table['~'] = ;
 
@@ -164,11 +165,28 @@ void sendCodeDelay(uint8_t r, uint8_t c, int d)
 {
   // DJ is some symbol
   PORTA = 0xff ^ (1 << c);
+  //if (r == 0) PORTC = 0xff ^ 2; else
   PORTC = 0xff ^ (1 << r);
   delay(d);
   //while (!digitalRead(PRINTING_PIN));
   PORTA = 0xff;
   PORTC = 0xff;
+  delay(100);
+}
+
+void sendSymbolCode(uint8_t r, uint8_t c)
+{
+  // DJ is some symbol
+  PORTA = 0xff ^ (1 << c);
+  PORTC = 0xff ^ (1 << r);
+  //delay(1);
+  //while (true) {
+  while (digitalRead(PRINTING_PIN));// delay(1);
+  //delay(5);
+  PORTA = 0xff;
+  PORTC = 0xff;
+  //while (!digitalRead(PRINTING_PIN));
+  //delay(50);
   delay(100);
 }
 
@@ -192,7 +210,8 @@ void sendSymbol(char c)
     if (c == '\n') {
         // CR LF
         sendCodeDelay(2, 7, 30);
-        delay(400);
+        while (!digitalRead(CR_PIN));
+        delay(100);
     } else if (!out_table[c]) {
         sendSymbol(' ');
     } else {
@@ -205,7 +224,10 @@ void sendSymbol(char c)
                 lowReg();
             }
         }
-        sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
+        if (c == ' '/* || (c >= '0' && c <= '9')*/)
+          sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
+        else
+          sendSymbolCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
     }
 }
 
@@ -224,6 +246,7 @@ void setup() {
   PORTA = 0xff;
   PORTC = 0xff;
   pinMode(PRINTING_PIN, INPUT_PULLUP);
+  pinMode(CR_PIN, INPUT_PULLUP);
 
 //   sendCode(2, 1); // high reg
 //   sendCode(5, 5); // H
@@ -261,28 +284,32 @@ void setup() {
     fill_tables();
     reg = H_BIT;
     highReg();
-    //print("HELLO, WORLD!\nAND HELLO AGAIN\n");
 
-    print(
-"           ____                              ____\n"
-"         o8%8888,                          o8%8888,\n"
-"       o88%8888888.                      o88%8888888.\n"
-"      8'-    -:8888b                    8'-    -:8888b\n"
-"     8'         8888                   8'         8888\n"
-"    d8.-=. ,==-.:888b                 d8.-=. ,==-.:888b\n"
-"    >8 `~` :`~' d8888                 >8 `=` :`=' d8888\n"
-"    88         ,88888                 88         ,88888\n"
-"    88b. `-~  ':88888                 88b` `--  ':88888\n"
-"    888b ~==~ .:88888                 888b -==- .:88888\n"
-"    88888o--:':::8888                 88888o--:':::8888\n"
-"    `88888| :::' 8888b                `88888| :::' 8888b\n"
-"    8888^^'       8888b               8888^^'       8888b\n"
-"   d888           ,%888b.            d888           ,%888b.\n"
-"  d88%            %%%8--'-.         d88%            %%%8--'-.\n"
-" /88:.__ ,       _%-' ---  -       /88:.__ ,       _%-' ---  -\n"
-"     '''::===..-'   =  --.  `          '''::===..-'   =  --.  `\n"
-"      Normal Mona                      Depressed Mona\n"
-    );
+
+//    print("0123456789\n");
+    //print("HELLO, WORLD!\nAND HELLO AGAIN\n");
+/*
+     print(
+ "           ____                              ____\n"
+ "         o8%8888,                          o8%8888,\n"
+ "       o88%8888888.                      o88%8888888.\n"
+ "      8'-    -:8888b                    8'-    -:8888b\n"
+ "     8'         8888                   8'         8888\n"
+ "    d8.-=. ,==-.:888b                 d8.-=. ,==-.:888b\n"
+ "    >8 `~` :`~' d8888                 >8 `=` :`=' d8888\n"
+ "    88         ,88888                 88         ,88888\n"
+ "    88b. `-~  ':88888                 88b` `--  ':88888\n"
+ "    888b ~==~ .:88888                 888b -==- .:88888\n"
+ "    88888o--:':::8888                 88888o--:':::8888\n"
+ "    `88888| :::' 8888b                `88888| :::' 8888b\n"
+ "    8888^^'       8888b               8888^^'       8888b\n"
+ "   d888           ,%888b.            d888           ,%888b.\n"
+ "  d88%            %%%8--'-.         d88%            %%%8--'-.\n"
+ " /88:.__ ,       _%-' ---  -       /88:.__ ,       _%-' ---  -\n"
+ "     '''::===..-'   =  --.  `          '''::===..-'   =  --.  `\n"
+ "      Normal Mona                      Depressed Mona\n"
+     );
+*/
 }
 
 void loop() {
