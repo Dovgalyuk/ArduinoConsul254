@@ -4,8 +4,8 @@
 #define PRINTING_PIN 38
 #define CR_PIN 39
 
-#define HIGHREG B11010110
-#define LOWREG  B10010111
+#define KEY_HIGHREG B11010110
+#define KEY_LOWREG  B10010111
 
 #define H_BIT 0x80
 #define L_BIT 0x40
@@ -84,7 +84,7 @@ void fill_tables()
   in_table[B01111111] = '1'; //
   in_table[B10111100] = '.'; //
   in_table[B10111111] = '2'; //
-  in_table[B00111101] = '#'; // символ "10"
+  in_table[B00111101] = '@'; // символ "10"
   in_table[B00111110] = '3'; //
   in_table[B11011100] = '+'; //
   in_table[B11011111] = '4'; //
@@ -92,7 +92,7 @@ void fill_tables()
   in_table[B01011110] = '5'; //
   in_table[B10011101] = ')'; //
   in_table[B10011110] = '6'; //
-  in_table[B00011100] = 'x'; //
+  in_table[B00011100] = '&'; // x cross
   in_table[B00011111] = '7'; //
   in_table[B11101100] = ';'; //
   in_table[B11101111] = '8'; //
@@ -113,7 +113,7 @@ void fill_tables()
   in_table[B00100000] = '^'; //
   in_table[B00100011] = 'Ь'; //
   in_table[B01010111] = '$'; // табулятор
-  in_table[B11110111] = '$'; // возврат каретки
+  in_table[B11110111] = '\n'; // возврат каретки
   //in_table[B11010110] = '$'; // верхний регистр
   //in_table[B10010111] = '$'; // нижний регистр
   in_table[B00010110] = ' '; // пробел
@@ -209,39 +209,39 @@ void fill_tables()
     //out_table['}'] = ;
     //out_table['~'] = ;
 
-    // out_table['А'] = out_table['A'];
-    // out_table['Б'] = ;
-    // out_table['В'] = out_table['B'];
-    // out_table['Г'] = ;
-    // out_table['Д'] = ;
-    // out_table['Е'] = out_table['E'];
-    // out_table['Ё'] = out_table['E'];
-    // out_table['Ж'] = ;
-    // out_table['З'] = ;
-    // out_table['И'] = ;
-    // out_table['Й'] = ;
-    // out_table['К'] = out_table['K'];
-    // out_table['Л'] = ;
-    // out_table['М'] = out_table['M'];
-    // out_table['Н'] = out_table['H'];
-    // out_table['О'] = out_table['O'];
-    // out_table['П'] = ;
-    // out_table['Р'] = out_table['P'];
-    // out_table['С'] = out_table['C'];
-    // out_table['Т'] = out_table['T'];
-    // out_table['У'] = out_table['Y'];
-    // out_table['Ф'] = ;
-    // out_table['Х'] = out_table['X'];
-    // out_table['Ц'] = ;
-    // out_table['Ч'] = ;
-    // out_table['Ш'] = ;
-    // out_table['Щ'] = ;
-    // out_table['Ъ'] = ;
-    // out_table['Ы'] = ;
-    // out_table['Ь'] = ;
-    // out_table['Э'] = ;
-    // out_table['Ю'] = ;
-    // out_table['Я'] = ;
+    out_table['А'] = out_table['A'];
+    out_table['Б'] = HH B M;
+    out_table['В'] = out_table['B'];
+    out_table['Г'] = HH B O;
+    out_table['Д'] = HH B J;
+    out_table['Е'] = out_table['E'];
+    out_table['Ё'] = out_table['E'];
+    out_table['Ж'] = HH B L;
+    out_table['З'] = HH B I;
+    out_table['И'] = HH F P;
+    out_table['Й'] = HH F M;
+    out_table['К'] = out_table['K'];
+    out_table['Л'] = HH F O;
+    out_table['М'] = out_table['M'];
+    out_table['Н'] = out_table['H'];
+    out_table['О'] = out_table['O'];
+    out_table['П'] = HH F I;
+    out_table['Р'] = out_table['P'];
+    out_table['С'] = out_table['C'];
+    out_table['Т'] = out_table['T'];
+    out_table['У'] = out_table['Y'];
+    out_table['Ф'] = HH D J;
+    out_table['Х'] = out_table['X'];
+    out_table['Ц'] = HH D L;
+    out_table['Ч'] = HH D I;
+    out_table['Ш'] = HH H P;
+    out_table['Щ'] = HH H M;
+    out_table['Ъ'] = LL H M;
+    out_table['Ы'] = HH H K;
+    out_table['Ь'] = HH H O;
+    out_table['Э'] = HH H J;
+    out_table['Ю'] = HH H N;
+    out_table['Я'] = HH H L;
 #undef HH
 #undef LL
 #undef A
@@ -265,6 +265,8 @@ void fill_tables()
 
     const char upper[] = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
     const char lower[] = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    for (int i = 0 ; i < 33 ; ++i)
+        out_table[lower[i]] = out_table[upper[i]];
 }
 
 void sendCodeDelay(uint8_t r, uint8_t c, int d)
@@ -284,14 +286,14 @@ void sendCode(uint8_t r, uint8_t c)
   sendCodeDelay(r, c, 10);
 }
 
-void changeRegister(bool r)
+void lowReg()
 {
-    reg = r;
-    if (r) {
-        sendCode(2, 1);
-    } else {
-        sendCode(2, 3);
-    }
+    sendCode(2, 3);
+}
+
+void highReg()
+{
+    sendCode(2, 1);
 }
 
 
@@ -310,19 +312,21 @@ void setup() {
 
 void loop() {
     if (!digitalRead(12)) {
-      unsigned int v = 0;
-      for (int i = 2 ; i <= 9 ; ++i)
-        v = (v << 1) + digitalRead(i);
-      if (v == LOWREG) {
-        changeRegister(false);
-      } else if (v == HIGHREG) {
-        changeRegister(true);
-      } else {
-        if (reg) {
-          v = v ^ 3;
+        unsigned int v = 0;
+        for (int i = 2 ; i <= 9 ; ++i)
+            v = (v << 1) + digitalRead(i);
+        if (v == KEY_LOWREG && reg == H_BIT) {
+            reg = SWITCH_REG(reg);
+            highReg();
+        } else if (v == KEY_HIGHREG && reg == L_BIT) {
+            reg = SWITCH_REG(reg);
+            lowReg();
+        } else {
+            if (reg == H_BIT) {
+                v = v ^ 3;
+            }
+            sendSymbol(in_table[v]);
         }
-        lcd.write(table[v]);
-      }
-      delay(50);
+        delay(50);
     }
 }
