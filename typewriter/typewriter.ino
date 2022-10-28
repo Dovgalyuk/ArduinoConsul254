@@ -2,18 +2,20 @@
 // PC - выбор ряда A..H
 
 #define PRINTING_PIN 38
+#define CR_PIN 39
 
 #define HIGHREG B11010110
 #define LOWREG  B10010111
 
 #define H_BIT 0x80
 #define L_BIT 0x40
+#define SWITCH_REG(r) ((r) ^ (H_BIT | L_BIT))
 #define ROW_SHIFT 0
 #define COL_SHIFT 3
 
 char in_table[256];
 uint8_t out_table[256];
-bool reg = true;
+uint8_t reg;
 
 void fill_tables()
 {

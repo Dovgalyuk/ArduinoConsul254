@@ -104,14 +104,14 @@ void fill_tables()
     //out_table['~'] = ;
 
     // out_table['А'] = out_table['A'];
-    // out_table['Б'] = ;
+    out_table['Б'] = HH B M;
     // out_table['В'] = out_table['B'];
     // out_table['Г'] = ;
     // out_table['Д'] = ;
     // out_table['Е'] = out_table['E'];
     // out_table['Ё'] = out_table['E'];
     // out_table['Ж'] = ;
-    // out_table['З'] = ;
+    out_table['З'] = HH B I;
     // out_table['И'] = ;
     // out_table['Й'] = ;
     // out_table['К'] = out_table['K'];
@@ -161,6 +161,8 @@ void fill_tables()
     const char lower[] = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 }
 
+#define DELAY 150
+
 void sendCodeDelay(uint8_t r, uint8_t c, int d)
 {
   // DJ is some symbol
@@ -170,18 +172,22 @@ void sendCodeDelay(uint8_t r, uint8_t c, int d)
   //while (!digitalRead(PRINTING_PIN));
   PORTA = 0xff;
   PORTC = 0xff;
-  delay(150);
+  delay(DELAY);
 }
 
 void sendSymbolCode(uint8_t r, uint8_t c)
 {
   // DJ is some symbol
+  unsigned long t = millis();
   PORTA = 0xff ^ (1 << c);
   PORTC = 0xff ^ (1 << r);
-  while (digitalRead(PRINTING_PIN));
+  while (digitalRead(PRINTING_PIN) || t + 5 > millis()) {
+    if (t + 12 < millis())
+      break;
+  }
   PORTC = 0xff;
   PORTA = 0xff;
-  delay(150);
+  delay(DELAY);
 }
 
 
@@ -200,8 +206,9 @@ void highReg()
     sendCode(2, 1);
 }
 
-void sendSymbol(char c)
+void sendSymbol(uint8_t c)
 {
+    static uint8_t prev;
     if (c == '\n') {
         // CR LF
         sendCode(2, 7);
@@ -221,8 +228,13 @@ void sendSymbol(char c)
         }
         if (c == ' ')
           sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
-        else
+        else {
+          if (prev == c) {
+            delay(50);
+          }
           sendSymbolCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
+          prev = c;
+        }
     }
 }
 
@@ -280,7 +292,8 @@ void setup() {
     reg = H_BIT;
     highReg();
 
-    print("A   B7777777777777777777777777777777\n");
+    // print("ZZZZZZZZZZZZZZZZZZZZZZZZ\n");
+    // print("NNNNNNNNNNNNNNNNNNNNNNNN\n");
     return;
 
 //    print("0123456789\n");
