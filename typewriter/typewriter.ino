@@ -13,7 +13,7 @@
 #define ROW_SHIFT 0
 #define COL_SHIFT 3
 
-char in_table[256];
+uint8_t in_table[256];
 uint8_t out_table[256];
 uint8_t reg;
 
@@ -55,7 +55,7 @@ void fill_tables()
   in_table[B10000000] = 'Q'; //
   in_table[B10000011] = 'Я'; //
   in_table[B11110001] = 'R'; //
-  in_table[B11110010] = 'Г'; //
+  in_table[B11110010] = 'P'; //
   in_table[B01110000] = 'S'; //
   in_table[B01110011] = 'C'; //
   in_table[B10110000] = 'V'; //
@@ -114,12 +114,18 @@ void fill_tables()
   in_table[B00100011] = 'Ь'; //
   in_table[B01010111] = '$'; // табулятор
   in_table[B11110111] = '\n'; // возврат каретки
+  in_table[B11110100] = '\n'; // возврат каретки
   //in_table[B11010110] = '$'; // верхний регистр
   //in_table[B10010111] = '$'; // нижний регистр
   in_table[B00010110] = ' '; // пробел
   in_table[B01110110] = '\n'; // перевод строки
+  in_table[B01110101] = '\n'; // перевод строки
   in_table[B10110110] = '$'; // красная лента
   in_table[B00110111] = '$'; // черная лента
+
+for (int i = 0 ; i < 256 ; ++i)
+  if (in_table[i] && !in_table[i ^ 1])
+    in_table[i ^ 1] = in_table[i];
 
 #define HH H_BIT |
 #define LL L_BIT |
@@ -149,7 +155,7 @@ void fill_tables()
     out_table['\''] = LL H M;
     out_table['('] = LL A N;
     out_table[')'] = LL A L;
-    out_table['*'] = HH G M;
+    // out_table['*'] = HH G M; // ?????
     out_table['+'] = HH E K;
     out_table[','] = LL A M;
     out_table['-'] = LL B P;
@@ -205,43 +211,43 @@ void fill_tables()
     out_table['_'] = LL E K;
     out_table['`'] = LL H P;
     //out_table['{'] = ;
-    out_table['|'] = LL G M;
+    //out_table['|'] = LL G M; // ?????
     //out_table['}'] = ;
     //out_table['~'] = ;
-
-    out_table['А'] = out_table['A'];
-    out_table['Б'] = HH B M;
-    out_table['В'] = out_table['B'];
-    out_table['Г'] = HH B O;
-    out_table['Д'] = HH B J;
-    out_table['Е'] = out_table['E'];
-    out_table['Ё'] = out_table['E'];
-    out_table['Ж'] = HH B L;
-    out_table['З'] = HH B I;
-    out_table['И'] = HH F P;
-    out_table['Й'] = HH F M;
-    out_table['К'] = out_table['K'];
-    out_table['Л'] = HH F O;
-    out_table['М'] = out_table['M'];
-    out_table['Н'] = out_table['H'];
-    out_table['О'] = out_table['O'];
-    out_table['П'] = HH F I;
-    out_table['Р'] = out_table['P'];
-    out_table['С'] = out_table['C'];
-    out_table['Т'] = out_table['T'];
-    out_table['У'] = out_table['Y'];
-    out_table['Ф'] = HH D J;
-    out_table['Х'] = out_table['X'];
-    out_table['Ц'] = HH D L;
-    out_table['Ч'] = HH D I;
-    out_table['Ш'] = HH H P;
-    out_table['Щ'] = HH H M;
-    out_table['Ъ'] = LL H M;
-    out_table['Ы'] = HH H K;
-    out_table['Ь'] = HH H O;
-    out_table['Э'] = HH H J;
-    out_table['Ю'] = HH H N;
-    out_table['Я'] = HH H L;
+#define Y(c) ((uint8_t)c)
+    out_table[Y('А')] = out_table['A'];
+    out_table[Y('Б')] = HH B M;
+    out_table[Y('В')] = out_table['B'];
+    out_table[Y('Г')] = HH B O;
+    out_table[Y('Д')] = HH B J;
+    out_table[Y('Е')] = out_table['E'];
+    out_table[Y('Ё')] = out_table['E'];
+    out_table[Y('Ж')] = HH B L;
+    out_table[Y('З')] = HH B I;
+    out_table[Y('И')] = HH F P;
+    out_table[Y('Й')] = HH F M;
+    out_table[Y('К')] = out_table['K'];
+    out_table[Y('Л')] = HH F O;
+    out_table[Y('М')] = out_table['M'];
+    out_table[Y('Н')] = out_table['H'];
+    out_table[Y('О')] = out_table['O'];
+    out_table[Y('П')] = HH F I;
+    out_table[Y('Р')] = out_table['P'];
+    out_table[Y('С')] = out_table['C'];
+    out_table[Y('Т')] = out_table['T'];
+    out_table[Y('У')] = out_table['Y'];
+    out_table[Y('Ф')] = HH D J;
+    out_table[Y('Х')] = out_table['X'];
+    out_table[Y('Ц')] = HH D L;
+    out_table[Y('Ч')] = HH D I;
+    out_table[Y('Ш')] = HH H P;
+    out_table[Y('Щ')] = HH H M;
+    out_table[Y('Ъ')] = LL H M;
+    out_table[Y('Ы')] = HH H K;
+    out_table[Y('Ь')] = HH H O;
+    out_table[Y('Э')] = HH H J;
+    out_table[Y('Ю')] = HH H N;
+    out_table[Y('Я')] = HH H L;
 #undef HH
 #undef LL
 #undef A
@@ -260,30 +266,47 @@ void fill_tables()
 #undef N
 #undef O
 #undef P
-    for (char i = 'a' ; i <= 'z' ; ++i)
+#undef Y
+    for (int i = 'a' ; i <= 'z' ; ++i)
         out_table[i] = out_table[i - 'a' + 'A'];
 
-    const char upper[] = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-    const char lower[] = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    const unsigned char upper[] = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+    const unsigned char lower[] = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
     for (int i = 0 ; i < 33 ; ++i)
+      if (!out_table[lower[i]])
         out_table[lower[i]] = out_table[upper[i]];
+        
 }
+
+#define DELAY 150
 
 void sendCodeDelay(uint8_t r, uint8_t c, int d)
 {
-  // DJ is some symbol
   PORTA = 0xff ^ (1 << c);
   PORTC = 0xff ^ (1 << r);
   delay(d);
-  //while (!digitalRead(PRINTING_PIN));
   PORTA = 0xff;
   PORTC = 0xff;
-  delay(200);
+  delay(DELAY);
+}
+
+void sendSymbolCode(uint8_t r, uint8_t c)
+{
+  unsigned long t = millis();
+  PORTA = 0xff ^ (1 << c);
+  PORTC = 0xff ^ (1 << r);
+  while (digitalRead(PRINTING_PIN) || t + 5 > millis()) {
+    if (t + 12 < millis())
+      break;
+  }
+  PORTC = 0xff;
+  PORTA = 0xff;
+  delay(DELAY);
 }
 
 void sendCode(uint8_t r, uint8_t c)
 {
-  sendCodeDelay(r, c, 10);
+  sendCodeDelay(r, c, 8);
 }
 
 void lowReg()
@@ -296,6 +319,38 @@ void highReg()
     sendCode(2, 1);
 }
 
+void sendSymbol(uint8_t c)
+{
+    static uint8_t prev;
+    if (c == '\n') {
+        // CR LF
+        sendCode(2, 7);
+        while (!digitalRead(CR_PIN));
+        delay(100);
+    } else if (!out_table[c]) {
+        sendSymbol(' ');
+    } else {
+        uint8_t code = out_table[c];
+        // if (!(code & reg)) {
+        //     reg = SWITCH_REG(reg);
+        //     if (reg == H_BIT) {
+        //         highReg();
+        //     } else {
+        //         lowReg();
+        //     }
+        // }
+        if (c == ' ')
+          sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
+        else {
+          if (prev == c) {
+            delay(50);
+          }
+          sendSymbolCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
+          prev = c;
+        }
+    }
+}
+
 
 void setup() {
   // for (int i = 22 ; i <= 37 ; ++i)
@@ -305,26 +360,52 @@ void setup() {
   PORTA = 0xff;
   PORTC = 0xff;
   pinMode(PRINTING_PIN, INPUT_PULLUP);
+  pinMode(CR_PIN, INPUT_PULLUP);
 
-  changeRegister(true);
+  pinMode(2, INPUT_PULLUP);
+  pinMode(3, INPUT_PULLUP);
+  pinMode(4, INPUT_PULLUP);
+  pinMode(5, INPUT_PULLUP);
+  pinMode(6, INPUT_PULLUP);
+  pinMode(7, INPUT_PULLUP);
+  pinMode(8, INPUT_PULLUP);
+  pinMode(9, INPUT_PULLUP);
+  pinMode(12, INPUT_PULLUP);
+
+  fill_tables();
+  reg = H_BIT;
+  highReg();
+
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
 }
 
 
 void loop() {
     if (!digitalRead(12)) {
-        unsigned int v = 0;
+        uint8_t v = 0;
         for (int i = 2 ; i <= 9 ; ++i)
             v = (v << 1) + digitalRead(i);
-        if (v == KEY_LOWREG && reg == H_BIT) {
-            reg = SWITCH_REG(reg);
-            highReg();
-        } else if (v == KEY_HIGHREG && reg == L_BIT) {
-            reg = SWITCH_REG(reg);
-            lowReg();
-        } else {
+        char buf[200];
+        sprintf(buf, "reg=%x key=%x code=%x out=%x\n", reg, v, in_table[v], out_table[in_table[v]]);
+        Serial.write(buf);
+        if ((v & ~3) == (KEY_LOWREG & ~3)) {
             if (reg == H_BIT) {
-                v = v ^ 3;
+              reg = SWITCH_REG(reg);
+              lowReg();
             }
+        } else if ((v & ~3) == (KEY_HIGHREG & ~3)) {
+            if (reg == L_BIT) {
+              reg = SWITCH_REG(reg);
+              highReg();
+            }
+        } else {
+            // if (reg == H_BIT) {
+            //     v = v ^ 3;
+            // }
+            //v = v ^ 3;
             sendSymbol(in_table[v]);
         }
         delay(50);
