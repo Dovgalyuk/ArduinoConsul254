@@ -11,20 +11,21 @@ int main(int argc, const char **argv)
   fclose(f);
   const char rows[8] = "ABCDEFGH";
   const char cols[8] = "IJKLMNOP";
-  for (int i = 32 ; i < 128 ; ++i)
+  for (int i = 0 ; i < 256 ; ++i)
   {
     if (table[i] != 0xff)
-      printf("  out_table['%c'] = ; // \n", i);
+      //printf("  out_table['%c'] = ; // \n", i);
       /*printf("  out_table['%c'] = 0x%02x; // c=%02x table=%02x %c %c\n",
         i, table[i],
         i, // i < ' ' ? '.' : (char)i,
         table[i],
         rows[table[i] & 7],
         cols[table[i] >> 4]);
+      */
       printf("%02x(%c) %02x %c %c\n",
         i, i < ' ' ? '.' : (char)i,
         table[i],
         rows[table[i] & 7],
-        cols[table[i] >> 4]);*/
+        cols[table[i] >> 4]);
   }
 }
