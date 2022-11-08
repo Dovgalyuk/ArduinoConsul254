@@ -188,7 +188,7 @@ for (int i = 0 ; i < 256 ; ++i)
     out_table['H'] = HH F N;
     out_table['I'] = LL F P;
     out_table['J'] = LL F M;
-    out_table['K'] = LL F K;
+    out_table['K'] = HH F K;
     out_table['L'] = LL F O;
     out_table['M'] = HH F J;
     out_table['N'] = LL F N;
@@ -311,18 +311,19 @@ void sendCode(uint8_t r, uint8_t c)
 
 void lowReg()
 {
-    sendCode(2, 3);
+    sendCodeDelay(2, 3, 10);
 }
 
 void highReg()
 {
-    sendCode(2, 1);
+    sendCodeDelay(2, 1, 10);
 }
 
 void sendSymbol(uint8_t c)
 {
     static uint8_t prev;
     if (c == '\n') {
+        if (prev == '\n') return;
         // CR LF
         sendCode(2, 7);
         while (!digitalRead(CR_PIN));
@@ -331,14 +332,14 @@ void sendSymbol(uint8_t c)
         sendSymbol(' ');
     } else {
         uint8_t code = out_table[c];
-        // if (!(code & reg)) {
-        //     reg = SWITCH_REG(reg);
-        //     if (reg == H_BIT) {
-        //         highReg();
-        //     } else {
-        //         lowReg();
-        //     }
-        // }
+        if (!(code & reg)) {
+            reg = SWITCH_REG(reg);
+            if (reg == H_BIT) {
+                highReg();
+            } else {
+                lowReg();
+            }
+        }
         if (c == ' ')
           sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
         else {
@@ -346,9 +347,9 @@ void sendSymbol(uint8_t c)
             delay(50);
           }
           sendSymbolCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
-          prev = c;
         }
     }
+    prev = c;
 }
 
 
@@ -381,18 +382,22 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  Serial.write("Hello!\n");
+  //Serial.write("Hello!\n");
+  //sendSymbol('\n');
 }
 
+// sudo systemctl start getty@ttyUSB0
+// sudo systemctl stop getty@ttyUSB0
+// sudo chmod a+rw /dev/ttyUSB0
+
+char buf[6000];
+int head, tail;
 
 void loop() {
     if (!digitalRead(12)) {
         uint8_t v = 0;
         for (int i = 2 ; i <= 9 ; ++i)
             v = (v << 1) + digitalRead(i);
-        char buf[200];
-        sprintf(buf, "reg=%x key=%x code=%x out=%x\n", reg, v, in_table[v], out_table[in_table[v]]);
-        Serial.write(buf);
         if ((v & ~3) == (KEY_LOWREG & ~3)) {
             if (reg == H_BIT) {
               reg = SWITCH_REG(reg);
@@ -404,12 +409,53 @@ void loop() {
               highReg();
             }
         } else {
-            // if (reg == H_BIT) {
-            //     v = v ^ 3;
-            // }
-            //v = v ^ 3;
-            sendSymbol(in_table[v]);
+          char c = (char)in_table[v];
+          if (c >= 'A' && c <= 'Z')
+          {
+            c += 'a' - 'A';
+          }
+          Serial.write(c);
+          delay(50);
         }
-        delay(50);
+    }
+    while (Serial.available() > 0) {
+        uint8_t v = Serial.read();
+        if (v == '\r') v = '\n';
+        int next = (tail + 1) % sizeof(buf);
+        if (next != head)
+        {
+          buf[tail] = v;
+          tail = next;
+        }
+        else
+        {
+          break;
+        }
+    }
+    if (head != tail)
+    {
+        uint8_t v = buf[head];
+        head = (head + 1) % sizeof(buf);
+        // sendSymbol('0' + (v / 100) % 10);
+        // sendSymbol('0' + (v / 10) % 10);
+        // sendSymbol('0' + v % 10);
+        sendSymbol(v);
+        // if ((v & ~3) == (KEY_LOWREG & ~3)) {
+        //     if (reg == H_BIT) {
+        //       reg = SWITCH_REG(reg);
+        //       lowReg();
+        //     }
+        // } else if ((v & ~3) == (KEY_HIGHREG & ~3)) {
+        //     if (reg == L_BIT) {
+        //       reg = SWITCH_REG(reg);
+        //       highReg();
+        //     }
+        // } else {
+        //     // if (reg == H_BIT) {
+        //     //     v = v ^ 3;
+        //     // }
+        //     //v = v ^ 3;
+        //     sendSymbol(in_table[v]);
+        // }
     }
 }

@@ -7,12 +7,12 @@
 extern "C" {
 #endif
 void system_io_init(void);
-#ifdef __cplusplus
-}
-#endif
 
 void __putch(int ch);
 int __getch(void);
+#ifdef __cplusplus
+}
+#endif
 
 void basic_io_print(char* buffer);
 char* basic_io_readline(char* prompt, char* buffer, size_t buffer_size);

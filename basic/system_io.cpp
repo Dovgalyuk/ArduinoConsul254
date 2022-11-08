@@ -1,5 +1,6 @@
-// PA - выбор столбца I..P
-// PC - выбор ряда A..H
+#include <Arduino.h>
+#include <HardwareSerial.h>
+#include "io.h"
 
 #define PRINTING_PIN 38
 #define CR_PIN 39
@@ -323,6 +324,7 @@ void sendSymbol(uint8_t c)
 {
     static uint8_t prev;
     if (c == '\n') {
+        if (prev == '\n') return;
         // CR LF
         sendCode(2, 7);
         while (!digitalRead(CR_PIN));
@@ -346,15 +348,13 @@ void sendSymbol(uint8_t c)
             delay(50);
           }
           sendSymbolCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
-          prev = c;
         }
     }
+    prev = c;
 }
 
-
-void setup() {
-  // for (int i = 22 ; i <= 37 ; ++i)
-  //   pinMode(i, OUTPUT);
+void system_io_init(void)
+{
   DDRA = 0xff;
   DDRC = 0xff;
   PORTA = 0xff;
@@ -380,36 +380,15 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-
-  Serial.write("Hello!\n");
 }
 
+void __putch(int ch)
+{
+  //sendSymbol(ch);
+  Serial.write((char)ch);
+}
 
-void loop() {
-    if (!digitalRead(12)) {
-        uint8_t v = 0;
-        for (int i = 2 ; i <= 9 ; ++i)
-            v = (v << 1) + digitalRead(i);
-        char buf[200];
-        sprintf(buf, "reg=%x key=%x code=%x out=%x\n", reg, v, in_table[v], out_table[in_table[v]]);
-        Serial.write(buf);
-        if ((v & ~3) == (KEY_LOWREG & ~3)) {
-            if (reg == H_BIT) {
-              reg = SWITCH_REG(reg);
-              lowReg();
-            }
-        } else if ((v & ~3) == (KEY_HIGHREG & ~3)) {
-            if (reg == L_BIT) {
-              reg = SWITCH_REG(reg);
-              highReg();
-            }
-        } else {
-            // if (reg == H_BIT) {
-            //     v = v ^ 3;
-            // }
-            //v = v ^ 3;
-            sendSymbol(in_table[v]);
-        }
-        delay(50);
-    }
+int __getch(void)
+{
+    return 0;
 }

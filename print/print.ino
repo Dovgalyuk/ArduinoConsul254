@@ -208,6 +208,9 @@ void highReg()
 
 void sendSymbol(uint8_t c)
 {
+  // char s[100];
+  // sprintf(s, "%d\n", c);
+  // Serial.write(s);
     static uint8_t prev;
     if (c == '\n') {
         // CR LF
@@ -241,11 +244,19 @@ void sendSymbol(uint8_t c)
 void print(const char *s)
 {
     while (*s) {
+  // char b[100];
+  // sprintf(b, "P %d\n", *s);
+  // Serial.write(b);
         sendSymbol(*s++);
     }
 }
 
 void setup() {
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
   // for (int i = 22 ; i <= 37 ; ++i)
   //   pinMode(i, OUTPUT);
   DDRA = 0xff;
@@ -292,12 +303,16 @@ void setup() {
     reg = H_BIT;
     highReg();
 
+    //sendCodeDelay(2, 7, 1000);
+
     // print("ZZZZZZZZZZZZZZZZZZZZZZZZ\n");
     // print("NNNNNNNNNNNNNNNNNNNNNNNN\n");
-    return;
+    //return;
 
 //    print("0123456789\n");
     //print("HELLO, WORLD!\nAND HELLO AGAIN\n");
+    print("\n");
+    return;
 /*
      print(
  "           ____                              ____\n"
