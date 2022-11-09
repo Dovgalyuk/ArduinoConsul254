@@ -155,7 +155,7 @@ for (int i = 0 ; i < 256 ; ++i)
     out_table['\''] = LL H M;
     out_table['('] = LL A N;
     out_table[')'] = LL A L;
-    // out_table['*'] = HH G M; // ?????
+    out_table['*'] = out_table[' '];//HH G M; // ?????
     out_table['+'] = HH E K;
     out_table[','] = LL A M;
     out_table['-'] = LL B P;
@@ -211,7 +211,7 @@ for (int i = 0 ; i < 256 ; ++i)
     out_table['_'] = LL E K;
     out_table['`'] = LL H P;
     //out_table['{'] = ;
-    //out_table['|'] = LL G M; // ?????
+    out_table['|'] = out_table[' '];//LL G M; // ?????
     //out_table['}'] = ;
     //out_table['~'] = ;
 #define Y(c) ((uint8_t)c)
@@ -329,7 +329,7 @@ void sendSymbol(uint8_t c)
         while (!digitalRead(CR_PIN));
         delay(100);
     } else if (!out_table[c]) {
-        sendSymbol(' ');
+        //sendSymbol(' ');
     } else {
         uint8_t code = out_table[c];
         if (!(code & reg)) {
@@ -377,7 +377,7 @@ void setup() {
   reg = H_BIT;
   highReg();
 
-  Serial.begin(9600);
+  Serial.begin(1200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -386,12 +386,10 @@ void setup() {
   //sendSymbol('\n');
 }
 
+// sudo stty -F /dev/ttyUSB0 1200
 // sudo systemctl start getty@ttyUSB0
 // sudo systemctl stop getty@ttyUSB0
 // sudo chmod a+rw /dev/ttyUSB0
-
-char buf[6000];
-int head, tail;
 
 void loop() {
     if (!digitalRead(12)) {
@@ -421,21 +419,6 @@ void loop() {
     while (Serial.available() > 0) {
         uint8_t v = Serial.read();
         if (v == '\r') v = '\n';
-        int next = (tail + 1) % sizeof(buf);
-        if (next != head)
-        {
-          buf[tail] = v;
-          tail = next;
-        }
-        else
-        {
-          break;
-        }
-    }
-    if (head != tail)
-    {
-        uint8_t v = buf[head];
-        head = (head + 1) % sizeof(buf);
         // sendSymbol('0' + (v / 100) % 10);
         // sendSymbol('0' + (v / 10) % 10);
         // sendSymbol('0' + v % 10);
