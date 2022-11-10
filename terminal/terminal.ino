@@ -268,14 +268,7 @@ for (int i = 0 ; i < 256 ; ++i)
 #undef P
 #undef Y
     for (int i = 'a' ; i <= 'z' ; ++i)
-        out_table[i] = out_table[i - 'a' + 'A'];
-
-    const unsigned char upper[] = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-    const unsigned char lower[] = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    for (int i = 0 ; i < 33 ; ++i)
-      if (!out_table[lower[i]])
-        out_table[lower[i]] = out_table[upper[i]];
-        
+        out_table[i] = out_table[i - 'a' + 'A'];        
 }
 
 #define DELAY 150
@@ -408,6 +401,12 @@ void loop() {
             }
         } else {
           char c = (char)in_table[v];
+          if (c == '\n')
+          {
+            // skip input
+            while (Serial.available() > 0)
+                Serial.read();
+          }
           if (c >= 'A' && c <= 'Z')
           {
             c += 'a' - 'A';
@@ -416,9 +415,21 @@ void loop() {
           delay(50);
         }
     }
-    while (Serial.available() > 0) {
+    if (Serial.available() > 0) {
         uint8_t v = Serial.read();
         if (v == '\r') v = '\n';
+        if (v >= 0x80)
+        {
+          uint8_t v1 = Serial.read();
+          const uint8_t upper[] = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+          const uint8_t lower[] = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+          for (int i = 0 ; i < 33 ; ++i)
+            if (v == lower[i * 2] && v1 == lower[i * 2 + 1])
+            {
+              v = upper[i * 2 + 1];
+              break;
+            }
+        }
         // sendSymbol('0' + (v / 100) % 10);
         // sendSymbol('0' + (v / 10) % 10);
         // sendSymbol('0' + v % 10);
