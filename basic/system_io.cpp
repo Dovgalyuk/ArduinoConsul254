@@ -333,7 +333,7 @@ void system_io_init(void)
 
   fill_tables();
   reg = H_BIT;
-  //highReg();
+  highReg();
 }
 
 void __putch(int ch)
