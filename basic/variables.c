@@ -55,9 +55,9 @@ cb(char* name, void* value, void* context)
 }
 
 void
-variables_clean(void)
+variables_clear(void)
 {
-  dictionary_clean(_dictionary, cb);
+  dictionary_clear(_dictionary, cb);
 }
 
 variable*

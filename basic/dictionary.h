@@ -8,7 +8,7 @@ typedef struct dictionary dictionary;
 typedef void (*dictionary_each_cb)(char* name, void* value, void* context);
 
 dictionary* dictionary_new(void);
-void dictionary_clean(dictionary* d, dictionary_each_cb cb);
+void dictionary_clear(dictionary* d, dictionary_each_cb cb);
 void dictionary_put(dictionary* d, char* name, void* value);
 bool dictionary_has(dictionary* d, char* name);
 void* dictionary_get(dictionary* d, char* name);

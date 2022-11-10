@@ -4,6 +4,6 @@
 //extern char *last_error;
 //void error(const char *error_msg);
 
-#define error(E) do ; while(0)
+#define error(E) do basic_io_print(E); while(0)
 
 #endif

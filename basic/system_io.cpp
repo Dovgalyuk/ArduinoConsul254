@@ -374,12 +374,7 @@ void system_io_init(void)
 
   fill_tables();
   reg = H_BIT;
-  highReg();
-
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
+  //highReg();
 }
 
 void __putch(int ch)
@@ -390,5 +385,7 @@ void __putch(int ch)
 
 int __getch(void)
 {
-    return 0;
+    while (Serial.available() == 0)
+      ;
+    return Serial.read();
 }

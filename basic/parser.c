@@ -14,6 +14,7 @@
 #include "array.h"
 #include "io.h"
 #include "parser.h"
+#include "helper.h"
 
 #include "usingwin.h"
 
@@ -332,7 +333,8 @@ expression_print(expression_result* expr)
       }
       else
       {
-        snprintf(buffer, sizeof(buffer), "%f", value);
+        //snprintf(buffer, sizeof(buffer), "%f", value);
+        ftoa(buffer, value);
         basic_io_print(buffer);
       }
     }
@@ -830,6 +832,9 @@ do_print(basic_type* rv)
       }
       else if (sym != T_COMMA && sym != T_SEMICOLON)
       {
+// char buf[20];
+// sprintf(buf, "sym: %d\n", sym);
+// basic_io_print(buf);
         expression_result expr;
         expression(&expr);
         expression_print(&expr);
@@ -855,7 +860,7 @@ do_print(basic_type* rv)
     }
   }
 
-  fflush(stdout);
+  //fflush(stdout);
 
   return 0;
 }
@@ -897,9 +902,11 @@ do_goto(basic_type* rv)
 
   int line_number = (int) tokenizer_get_number();
   accept(T_NUMBER);
-
-  char* line = lines_get_contents(line_number);
-  if (line == NULL) {
+// char buf[30];
+// sprintf(buf, "goto cur:%d next:%d\n", __line, line_number);
+// basic_io_print(buf);
+  codeptr_t line = lines_get_contents(line_number);
+  if (line == 0) {
     error("GOTO LINE NOT FOUND");
     return 0;
   }
@@ -1252,7 +1259,6 @@ do_dim(basic_type* rv)
       expect(T_LEFT_BANANA); 
       size_t dimensions = get_vector(vector, 5);
       expect(T_RIGHT_BANANA);
-
       // printf("DIM for %s: %ld dimension(s)\n", name, dimensions);
       variable_array_init(name, type, dimensions, vector);
     }
@@ -1739,6 +1745,9 @@ do_if(basic_type* rv)
     if ( sym == T_NUMBER )
     {
       float line_number = tokenizer_get_number();
+// char buf[30];
+// sprintf(buf, "THEN %f\n", line_number);      
+// basic_io_print(buf);
       accept(T_NUMBER);
       set_line(line_number);
     }
@@ -1868,7 +1877,8 @@ do_input(basic_type* rv)
         char* t;
         char *p = line;
         float value;
-        sscanf(line, "%f", &value);
+        //sscanf(line, "%f", &value);
+        value = atof(line);
         variable_set_numeric(name, value);
 
         while (sym == T_COMMA)
@@ -1893,7 +1903,8 @@ do_input(basic_type* rv)
             {
                 error("EXPECTED NUMERIC VARIABLE");
             }
-            sscanf(p, "%f", &value);
+            //sscanf(p, "%f", &value);
+            value = atof(p);
             variable_set_numeric(name, value);
         }
     }
@@ -1948,9 +1959,9 @@ statement(void)
 }
 
 
-void basic_clean(void)
+void basic_clear(void)
 {
-  variables_clean();
+  variables_clear();
   __stack_p = STACK_SIZE;
 
   __data.line = 0;
@@ -2046,7 +2057,7 @@ void basic_init(void)
 
   variables_init();
 
-  basic_clean();
+  basic_clear();
 }
 
 void
@@ -2341,7 +2352,7 @@ str_str(basic_type* number, basic_type* rv)
 {
   rv->kind = kind_string;
   rv->value.string = calloc(16, 1);
-  sprintf(&(rv->value.string), "%f", number->value.number);
+  ftoa(&(rv->value.string), number->value.number);
   rv->mallocd = true;
   return 0;
 }

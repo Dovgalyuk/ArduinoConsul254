@@ -21,6 +21,7 @@ basic_io_readline(char* prompt, char* buffer, size_t buffer_size)
   basic_io_print(prompt);
   while ((ch = __getch()) != '\n' && len < buffer_size - 1)
   {
+    if (ch == '\r') break;
 //    ch = toupper(ch);
     __putch(ch);
 //     switch(ch){
@@ -41,4 +42,3 @@ basic_io_readline(char* prompt, char* buffer, size_t buffer_size)
   buffer[len] = '\0';
   return buffer;
 }
-

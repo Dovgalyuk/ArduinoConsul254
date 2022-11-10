@@ -182,7 +182,7 @@ destroy_cb_pass_2(char* name, void* value, void* context)
 
 
 void
-dictionary_clean(dictionary* d, dictionary_each_cb free_cb)
+dictionary_clear(dictionary* d, dictionary_each_cb free_cb)
 {
   _free_s ctx = {
 	.d = d,

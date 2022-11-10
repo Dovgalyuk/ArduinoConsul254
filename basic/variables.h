@@ -12,7 +12,7 @@ typedef enum {
 typedef struct variable variable;
 
 bool variables_init(void);
-void variables_clean(void);
+void variables_clear(void);
 
 variable* variable_get(char* name);
 

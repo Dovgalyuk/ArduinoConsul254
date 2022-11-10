@@ -66,7 +66,9 @@ void tokenizer_setup(void)
 
 char program_char(codeptr_t p)
 {
-  return pgm_read_byte_far(p);
+  char c = pgm_read_byte_far(p);
+//  __putch(c);
+  return c;
 }
 
 void tokenizer_init(codeptr_t input)
@@ -125,10 +127,11 @@ token _find_registered(void)
 
     // printf("look for: '%s', in '%s'\n", entry->name, tokenizer_p);
 
-    if (strncmp(tokenizer_p, entry->name, strlen(entry->name)) == 0) {
+    if (strncmp_PF(entry->name, tokenizer_p, strlen(entry->name)) == 0) {
        // printf("found '%s'\n", entry->name);
        tokenizer_next_p = tokenizer_p + strlen(entry->name);
        tokenizer_p = tokenizer_next_p;
+  //basic_io_print(entry->name);
        return entry->token;
     }
   }
@@ -155,12 +158,8 @@ token tokenizer_get_next_token(void)
       l++;
       tokenizer_next_p++;
     }
-#ifdef _WIN32
-    char *number;
-    number = malloc(l + 1);
-#else
+
     char number[l+1];
-#endif
     memset(number, 0, l+1);
     // strlcpy(number, tokenizer_p, sizeof(number) );
     strncpy_PF(number, tokenizer_p, l );
@@ -168,14 +167,15 @@ token tokenizer_get_next_token(void)
     tokenizer_p = tokenizer_next_p;
     float f;
     // printf("[%s]\n", number);
-    sscanf(number, "%f", &f);
+    //sscanf(number, "%f", &f);
+    f = atof(number);
+    // long x;
+    // sscanf(number, "%ld", &x);
     // printf("Got float: '%f'\n", f);
     tokenizer_actual_number = f;
-
-#ifdef _WIN32
-    free(number);
-#endif
-
+// char buf[50];
+// sprintf(buf, "num %s %f %ld\n", number, f, x);
+// basic_io_print(buf);
     return T_NUMBER;
   }
 
