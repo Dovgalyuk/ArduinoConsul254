@@ -189,7 +189,7 @@ for (int i = 0 ; i < 256 ; ++i)
     out_table['H'] = HH F N;
     out_table['I'] = LL F P;
     out_table['J'] = LL F M;
-    out_table['K'] = LL F K;
+    out_table['K'] = HH F K;
     out_table['L'] = LL F O;
     out_table['M'] = HH F J;
     out_table['N'] = LL F N;
@@ -215,40 +215,6 @@ for (int i = 0 ; i < 256 ; ++i)
     //out_table['|'] = LL G M; // ?????
     //out_table['}'] = ;
     //out_table['~'] = ;
-#define Y(c) ((uint8_t)c)
-    out_table[Y('А')] = out_table['A'];
-    out_table[Y('Б')] = HH B M;
-    out_table[Y('В')] = out_table['B'];
-    out_table[Y('Г')] = HH B O;
-    out_table[Y('Д')] = HH B J;
-    out_table[Y('Е')] = out_table['E'];
-    out_table[Y('Ё')] = out_table['E'];
-    out_table[Y('Ж')] = HH B L;
-    out_table[Y('З')] = HH B I;
-    out_table[Y('И')] = HH F P;
-    out_table[Y('Й')] = HH F M;
-    out_table[Y('К')] = out_table['K'];
-    out_table[Y('Л')] = HH F O;
-    out_table[Y('М')] = out_table['M'];
-    out_table[Y('Н')] = out_table['H'];
-    out_table[Y('О')] = out_table['O'];
-    out_table[Y('П')] = HH F I;
-    out_table[Y('Р')] = out_table['P'];
-    out_table[Y('С')] = out_table['C'];
-    out_table[Y('Т')] = out_table['T'];
-    out_table[Y('У')] = out_table['Y'];
-    out_table[Y('Ф')] = HH D J;
-    out_table[Y('Х')] = out_table['X'];
-    out_table[Y('Ц')] = HH D L;
-    out_table[Y('Ч')] = HH D I;
-    out_table[Y('Ш')] = HH H P;
-    out_table[Y('Щ')] = HH H M;
-    out_table[Y('Ъ')] = LL H M;
-    out_table[Y('Ы')] = HH H K;
-    out_table[Y('Ь')] = HH H O;
-    out_table[Y('Э')] = HH H J;
-    out_table[Y('Ю')] = HH H N;
-    out_table[Y('Я')] = HH H L;
 #undef HH
 #undef LL
 #undef A
@@ -270,13 +236,6 @@ for (int i = 0 ; i < 256 ; ++i)
 #undef Y
     for (int i = 'a' ; i <= 'z' ; ++i)
         out_table[i] = out_table[i - 'a' + 'A'];
-
-    const unsigned char upper[] = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-    const unsigned char lower[] = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    for (int i = 0 ; i < 33 ; ++i)
-      if (!out_table[lower[i]])
-        out_table[lower[i]] = out_table[upper[i]];
-        
 }
 
 #define DELAY 150
@@ -333,14 +292,14 @@ void sendSymbol(uint8_t c)
         sendSymbol(' ');
     } else {
         uint8_t code = out_table[c];
-        // if (!(code & reg)) {
-        //     reg = SWITCH_REG(reg);
-        //     if (reg == H_BIT) {
-        //         highReg();
-        //     } else {
-        //         lowReg();
-        //     }
-        // }
+        if (!(code & reg)) {
+            reg = SWITCH_REG(reg);
+            if (reg == H_BIT) {
+                highReg();
+            } else {
+                lowReg();
+            }
+        }
         if (c == ' ')
           sendCode((code >> ROW_SHIFT) & 7, (code >> COL_SHIFT) & 7);
         else {
@@ -379,13 +338,35 @@ void system_io_init(void)
 
 void __putch(int ch)
 {
-  //sendSymbol(ch);
+  sendSymbol(ch);
   Serial.write((char)ch);
 }
 
 int __getch(void)
 {
-    while (Serial.available() == 0)
-      ;
-    return Serial.read();
+    // while (Serial.available() == 0)
+    //   ;
+    // return Serial.read();
+    while (true)
+    {
+        while (digitalRead(12))
+            ;
+
+        uint8_t v = 0;
+        for (int i = 2 ; i <= 9 ; ++i)
+            v = (v << 1) + digitalRead(i);
+        if ((v & ~3) == (KEY_LOWREG & ~3)) {
+            if (reg == H_BIT) {
+                reg = SWITCH_REG(reg);
+                lowReg();
+            }
+        } else if ((v & ~3) == (KEY_HIGHREG & ~3)) {
+            if (reg == L_BIT) {
+                reg = SWITCH_REG(reg);
+                highReg();
+            }
+        } else {
+            return in_table[v];
+        }
+    }
 }
