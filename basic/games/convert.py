@@ -14,6 +14,7 @@ for filename in glob.glob('*.bas'):
             num = line[:i]
             out = line[i+1:-1]
             #out = out.replace('\n', '\\n')
+            out = out.replace('\\', '\\\\')
             out = out.replace('"', '\\"')
             L = len(out)
             if L > max:
