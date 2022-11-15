@@ -3,16 +3,13 @@
 
 #include "lines.h"
 
-extern const PROGMEM line program_23matches[];
-extern const PROGMEM line program_animal[];
-extern const PROGMEM line program_bagels[];
-extern const PROGMEM line program_buzzword[];
-extern const PROGMEM line program_guess[];
-extern const PROGMEM line program_hammurabi[];
-extern const PROGMEM line program_hangman[];
-extern const PROGMEM line program_hello[];
-extern const PROGMEM line program_nicomachus[];
-extern const PROGMEM line program_russianroulette[];
-extern const PROGMEM line program_tictactoe2[];
+#ifdef __cplusplus
+extern "C" {
+#endif
+void program_menu(void);
+codeptr_t program_get(uint8_t n);
+#ifdef __cplusplus
+}
+#endif
 
 #endif
