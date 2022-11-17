@@ -257,7 +257,7 @@ void sendSymbolCode(uint8_t r, uint8_t c)
   PORTC = 0xff ^ (1 << r);
   while (digitalRead(PRINTING_PIN) || t + 5 > millis()) {
     if (t + 12 < millis())
-      break;
+     break;
   }
   PORTC = 0xff;
   PORTA = 0xff;

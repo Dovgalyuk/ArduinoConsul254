@@ -14,17 +14,16 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
   char buf[3] = {};
-  basic_io_readline("SELECT GAME (0 - PRINT MENU)", buf, 3);
+  char msg[] = "SELECT GAME (0 - PRINT MENU)";
+  basic_io_readline(msg, buf, 3);
   uint8_t n = atoi(buf);
   codeptr_t prog = program_get(n);
   if (prog)
   {
-    //basic_io_print("BASIC RUN\n");
+  //   //basic_io_print("BASIC RUN\n");
     basic_run(prog);
-    //basic_io_print("!!!!!!!!!!!!END\n");
+  //   //basic_io_print("!!!!!!!!!!!!END\n");
     basic_clear();
   }
   else

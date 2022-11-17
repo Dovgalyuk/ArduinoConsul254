@@ -321,6 +321,11 @@ void sendSymbol(uint8_t c)
         sendCode(2, 7);
         while (!digitalRead(CR_PIN));
         delay(100);
+    } else if (c == '\t') {
+      sendSymbol(' ');      
+      sendSymbol(' ');
+      sendSymbol(' ');
+      sendSymbol(' ');
     } else if (!out_table[c]) {
         //sendSymbol(' ');
     } else {
