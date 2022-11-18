@@ -19,6 +19,7 @@ basic_io_readline(char* prompt, char* buffer, size_t buffer_size)
   size_t len = 0;
   char ch;
   basic_io_print(prompt);
+  __putch('\01');
   while ((ch = __getch()) != '\n' && len < buffer_size - 1)
   {
     if (ch == '\r') break;

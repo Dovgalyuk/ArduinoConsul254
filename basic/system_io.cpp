@@ -62,8 +62,8 @@ void fill_tables()
   in_table[B10110000] = 'V'; //
   in_table[B10110011] = 'T'; //
   in_table[B00110001] = 'U'; //
-  in_table[B00110010] = 'У'; //
-  in_table[B10011000] = 'Y'; // ???
+  in_table[B00110010] = 'Y'; //
+  in_table[B10011000] = 'V'; //
   in_table[B10011011] = 'Ж'; //
   in_table[B10111001] = 'W'; //
   in_table[B10111010] = 'B'; //
@@ -255,7 +255,7 @@ void sendSymbolCode(uint8_t r, uint8_t c)
   unsigned long t = millis();
   PORTA = 0xff ^ (1 << c);
   PORTC = 0xff ^ (1 << r);
-  while (digitalRead(PRINTING_PIN) || t + 5 > millis()) {
+  while (digitalRead(PRINTING_PIN) || t + 8 > millis()) {
     if (t + 12 < millis())
      break;
   }
@@ -282,7 +282,10 @@ void highReg()
 void sendSymbol(uint8_t c)
 {
     static uint8_t prev;
-    if (c == '\n') {
+    if (c == '\01') {
+      reg = H_BIT;
+      highReg();
+    } else if (c == '\n') {
         if (prev == '\n') return;
         // CR LF
         sendCode(2, 7);
