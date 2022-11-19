@@ -95,6 +95,9 @@ variable_set_string(char* name, char* value)
   variable *var = dictionary_get(_dictionary, name);
   if(var==NULL){
     var = (variable*) malloc(sizeof(variable));
+// char buf[20];
+// sprintf(buf, "VAR %x ", (int)var);
+// basic_io_print(buf);
     var->name = C_STRDUP(name);
     var->type = variable_type_string;
     var->is_array = false;

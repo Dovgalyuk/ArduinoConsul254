@@ -166,7 +166,6 @@ token tokenizer_get_next_token(void)
     number[l] = '\0';
     tokenizer_p = tokenizer_next_p;
     float f;
-    // printf("[%s]\n", number);
     //sscanf(number, "%f", &f);
     f = atof(number);
     // long x;

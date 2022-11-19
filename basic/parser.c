@@ -283,6 +283,9 @@ expression(expression_result *result)
   char *string = string_expression();
   if ( NULL != string )
   {
+//    char buf[200];
+//    sprintf(buf, "STR %s ", string);
+//    basic_io_print(buf);
     // Got string, check for relop and apply
     relop op = get_relop();
     if ( op == OP_NOP )
@@ -302,6 +305,9 @@ expression(expression_result *result)
   else
   {
     float number = numeric_expression();
+//    char buf[20];
+//    sprintf(buf, "NUM %d ", (int)number);
+//    basic_io_print(buf);
     relop op = get_relop();
     if (op != OP_NOP)
     {
@@ -373,7 +379,7 @@ f_rnd(basic_type* n, basic_type* rv)
 
   time_t now;
   struct tm *tm;
-  now = time(NULL);    
+  now = time(NULL);
   tm = localtime(&now);
   rv->value.number = (tm->tm_sec * 1.0) / 60;
   return 0;
@@ -616,6 +622,9 @@ numeric_factor(void)
     number = numeric_expression();
     expect(T_RIGHT_BANANA);
   } else {
+    //   char buf[20];
+    //   sprintf(buf, "LINE%d sym=%d ", __line, sym);
+    //   basic_io_print(buf);
     error("FACTOR SYNTAX ERROR");
     get_sym();
   }
@@ -804,8 +813,8 @@ string_expression(void)
     s1 = strcat(s1, s2);
     free(s2);
   }
- 
-  return s1; 
+
+  return s1;
 }
 
 
@@ -833,10 +842,11 @@ do_print(basic_type* rv)
       else if (sym != T_COMMA && sym != T_SEMICOLON)
       {
 // char buf[20];
-// sprintf(buf, "sym: %d\n", sym);
+// sprintf(buf, "Begin: %d ", sym);
 // basic_io_print(buf);
         expression_result expr;
         expression(&expr);
+//    basic_io_print("End ");
         expression_print(&expr);
         if (expr.type == expression_type_string){
             if (expr.value.string != &_dummy)
@@ -1449,7 +1459,7 @@ do_read(basic_type* rv)
          variable_array_set_string(name, v.string, vector);
         }
         else
-        {  
+        {
           variable_set_string(name, v.string);
         }
       } else {
@@ -1613,7 +1623,7 @@ numeric_condition(float left, float right, relop op)
     case OP_GE:
       return left >= right;
     case OP_GT:
-      return left > right;  
+      return left > right;
     case OP_NE:
       return left != right;
     // {

@@ -17,11 +17,13 @@ void loop() {
   char buf[3] = {};
   char msg[] = "SELECT GAME (0 - PRINT MENU)";
   basic_io_readline(msg, buf, 3);
+//  while(1);
   uint8_t n = atoi(buf);
   codeptr_t prog = program_get(n);
   if (prog)
   {
   //   //basic_io_print("BASIC RUN\n");
+    srand(millis());
     basic_run(prog);
   //   //basic_io_print("!!!!!!!!!!!!END\n");
     basic_clear();

@@ -2,6 +2,10 @@
 #include <HardwareSerial.h>
 #include "io.h"
 
+//#define QEMU
+
+#ifndef QEMU
+
 #define PRINTING_PIN 38
 #define CR_PIN 39
 
@@ -315,8 +319,11 @@ void sendSymbol(uint8_t c)
     prev = c;
 }
 
+#endif
+
 void system_io_init(void)
 {
+#ifndef QEMU
   DDRA = 0xff;
   DDRC = 0xff;
   PORTA = 0xff;
@@ -337,19 +344,25 @@ void system_io_init(void)
   fill_tables();
   reg = H_BIT;
   highReg();
+#endif
 }
 
 void __putch(int ch)
 {
-  sendSymbol(ch);
+#ifdef QEMU
   Serial.write((char)ch);
+#else
+  sendSymbol(ch);
+#endif
 }
 
 int __getch(void)
 {
-    // while (Serial.available() == 0)
-    //   ;
-    // return Serial.read();
+#ifdef QEMU
+    while (Serial.available() == 0)
+      ;
+    return Serial.read();
+#else
     while (true)
     {
         while (digitalRead(12))
@@ -372,4 +385,5 @@ int __getch(void)
             return in_table[v];
         }
     }
+#endif
 }

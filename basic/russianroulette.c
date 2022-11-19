@@ -13,7 +13,7 @@ const PROGMEM line program_russianroulette[] = {
 {30, "INPUT I"},
 {31, "IF I<>2 THEN 35"},
 {32, "PRINT \"     CHICKEN!!!!!\""},
-{33, "GOTO 72"},
+{33, "END"/*"GOTO 72"*/},
 {35, "N=N+1"},
 {40, "IF RND(1)>.833333 THEN 70"},
 {45, "IF N>10 THEN 80"},
